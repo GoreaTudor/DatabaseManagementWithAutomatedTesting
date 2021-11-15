@@ -15,7 +15,7 @@ public class DbConnector {
 
     private DbConnector () {
         try {
-            Scanner scanner = new Scanner(new File("src/java/Database/dbinfo.txt"));
+            Scanner scanner = new Scanner(new File("src/main/java/Database/dbinfo.txt"));
 
             connection = DriverManager.getConnection(
                     scanner.next(), // url
