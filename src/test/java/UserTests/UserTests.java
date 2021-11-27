@@ -12,6 +12,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserTests {
 
     private static UserTests instance = new UserTests();
@@ -24,30 +25,35 @@ public class UserTests {
 
     private static Stream <Arguments> provideDataForNewUser () {
         return Stream.of(
-                Arguments.of("dummy1", new char[]{'1', '2', '3', '4'}, false),
-                Arguments.of("dummy2", new char[]{'2', '3', '4', '5'}, true),
-                Arguments.of("dummy3", new char[]{'3', '4', '5', '6'}, true),
-                Arguments.of("dummy4", new char[]{'4', '5', '6', '7'}, false),
-                Arguments.of("dummy5", new char[]{'5', '6', '7', '8'}, false)
+                Arguments.of("_dummy1_", new char[]{'1', '2', '3', '4'}, false),
+                Arguments.of("_dummy2_", new char[]{'2', '3', '4', '5'}, true),
+                Arguments.of("_dummy3_", new char[]{'3', '4', '5', '6'}, true),
+                Arguments.of("_dummy4_", new char[]{'4', '5', '6', '7'}, false),
+                Arguments.of("_dummy5_", new char[]{'5', '6', '7', '8'}, false)
         );
     }
 
 
     ///// TABLE OPS /////
-    @BeforeAll
-    @DisplayName("Table name should be user_table")
-    public static void tableNameCheck () {
+    @Test
+    @Order(1)
+    @DisplayName("1: table name should be: user_table")
+    public void tableNameCheck () {
         try {
-            getInstance().rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table");
+            rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table");
+
+            Assertions.assertTrue(rs.next());
 
         } catch (SQLException exception) {
             exception.printStackTrace();
+            Assertions.fail();
         }
     }
 
     @Test
-    @DisplayName("should select username, password and isAdmin")
-    public void shouldSelectAll () {
+    @Order(2)
+    @DisplayName("2: column names should be: username, password and isAdmin")
+    public void columnNameCheck () {
         try {
             rs = DbConnector.getStatement().executeQuery("SELECT username, password, isAdmin FROM user_table;");
 
@@ -60,7 +66,8 @@ public class UserTests {
     }
 
     @ParameterizedTest
-    @DisplayName("should insert a new user into user_table using INSERT, then delete the user")
+    @Order(3)
+    @DisplayName("3: should insert a new test user")
     @MethodSource("provideDataForNewUser")
     public void shouldInsertANewUser (String username, char[] password, boolean isAdmin) {
         int pwd = Arrays.hashCode(password);
@@ -73,9 +80,6 @@ public class UserTests {
             rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table WHERE username = '" + username + "';");
             Assertions.assertTrue(rs.next());
 
-            // Delete user
-            DbConnector.getStatement().executeUpdate("DELETE FROM user_table WHERE username = '" + username + "';");
-
         } catch (SQLException e) {
             e.printStackTrace();
             Assertions.fail();
@@ -83,7 +87,27 @@ public class UserTests {
     }
 
     @ParameterizedTest
-    @DisplayName("should throw an SQLIntegrityConstraintViolationException")
+    @Order(4)
+    @DisplayName("4: should delete the inserted test users")
+    @MethodSource("provideDataForNewUser")
+    public void shouldDeleteAllTestUsers (String username, char[] password, boolean isAdmin) {
+        try {
+            rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table WHERE username = '" + username + "';");
+            Assertions.assertFalse(!rs.next());
+
+            DbConnector.getStatement().executeUpdate("DELETE FROM user_table WHERE username = '" + username + "';");
+
+            rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table WHERE username = '" + username + "';");
+            Assertions.assertEquals(false, rs.next());
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    @ParameterizedTest
+    @Order(5)
+    @DisplayName("5: should not allow new user insertion because of PK constraint")
     @MethodSource("provideDataForNewUser")
     public  void shouldThrowPKException (String username, char[] password, boolean isAdmin) {
         int pwd = Arrays.hashCode(password);
