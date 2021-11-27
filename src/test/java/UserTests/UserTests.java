@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 public class UserTests {
 
     private static UserTests instance = new UserTests();
-    public ResultSet rs;
+    private ResultSet rs;
 
     private UserTests () {}
     public static UserTests getInstance() {
@@ -109,12 +109,13 @@ public class UserTests {
     @Order(5)
     @DisplayName("5: should not allow new user insertion because of PK constraint")
     @MethodSource("provideDataForNewUser")
-    public  void shouldThrowPKException (String username, char[] password, boolean isAdmin) {
+    public void shouldThrowPKException (String username, char[] password, boolean isAdmin) {
         int pwd = Arrays.hashCode(password);
 
         Assertions.assertThrows(SQLIntegrityConstraintViolationException.class, () -> {
+            // username is the primary key for user_table
             DbConnector.getStatement().executeUpdate("CALL newUser('" + username + "', " + pwd + ", " + isAdmin + ");");
-            DbConnector.getStatement().executeUpdate("CALL newUser('" + username + "', " + pwd + ", " + isAdmin + ");");
+            DbConnector.getStatement().executeUpdate("CALL newUser('" + username + "', 1111, false);");
         });
 
         try {
