@@ -40,7 +40,7 @@ public class UserTests {
     @DisplayName("1: table name should be: user_table")
     public void tableNameCheck () {
         try {
-            rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table");
+            rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table;");
 
             Assertions.assertTrue(rs.next());
 
@@ -52,7 +52,7 @@ public class UserTests {
 
     @Test
     @Order(2)
-    @DisplayName("2: column names should be: username, password and isAdmin")
+    @DisplayName("2: column names should be: username, password, isAdmin")
     public void columnNameCheck () {
         try {
             rs = DbConnector.getStatement().executeQuery("SELECT username, password, isAdmin FROM user_table;");
@@ -93,15 +93,17 @@ public class UserTests {
     public void shouldDeleteAllTestUsers (String username, char[] password, boolean isAdmin) {
         try {
             rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table WHERE username = '" + username + "';");
-            Assertions.assertFalse(!rs.next());
+            if(!rs.next()) // fail if there is nothing to delete
+                Assertions.fail();
 
             DbConnector.getStatement().executeUpdate("DELETE FROM user_table WHERE username = '" + username + "';");
 
             rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table WHERE username = '" + username + "';");
-            Assertions.assertEquals(false, rs.next());
+            Assertions.assertFalse(rs.next());
 
         } catch (SQLException exception) {
             exception.printStackTrace();
+            Assertions.fail();
         }
     }
 
