@@ -1,4 +1,4 @@
-package UserTests;
+package TableTests;
 
 import Database.DbConnector;
 import org.junit.jupiter.api.*;
