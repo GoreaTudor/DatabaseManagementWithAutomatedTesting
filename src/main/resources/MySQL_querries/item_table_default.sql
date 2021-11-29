@@ -16,16 +16,16 @@ END $proc_delim$
 
 DELIMITER ;
 
-CALL newItem('Microsoft Office', 'contains: Word, Excel, PowerPoint');
-CALL newItem('Windows 10 License', '');
-CALL newItem('WinRAR License', '');
-CALL newItem('HP Laptop', 'model: Chromebook x360');
-CALL newItem('HP Printer', 'model: HP Laserjet 1018');
-CALL newItem('Dell Laptop', 'model: Vostro 5502');
-CALL newItem('Apple Laptop', 'model: MacBook Air');
-CALL newItem('HAMA Mouse', 'model: Wireless HAMA MW-110');
-CALL newItem('Logitech Mouse', 'model: Wireless Logitech M185');
-CALL newItem('EPSON Printer', 'model: EPSON Inkjet L810 CISS');
-CALL newItem('Paper Stack', '');
+CALL newItem('Microsoft Office', 'contains: Word, Excel, PowerPoint'); 	-- 1
+CALL newItem('Windows 10 License', ''); 								-- 2
+CALL newItem('WinRAR License', ''); 									-- 3
+CALL newItem('HP Laptop', 'model: Chromebook x360'); 					-- 4
+CALL newItem('HP Printer', 'model: HP Laserjet 1018'); 					-- 5
+CALL newItem('Dell Laptop', 'model: Vostro 5502'); 						-- 6
+CALL newItem('Apple Laptop', 'model: MacBook Air'); 					-- 7
+CALL newItem('HAMA Mouse', 'model: Wireless HAMA MW-110'); 				-- 8
+CALL newItem('Logitech Mouse', 'model: Wireless Logitech M185'); 		-- 9
+CALL newItem('EPSON Printer', 'model: EPSON Inkjet L810 CISS'); 		-- 10
+CALL newItem('Paper Stack', ''); 										-- 11
 
 SELECT * FROM item_table;
