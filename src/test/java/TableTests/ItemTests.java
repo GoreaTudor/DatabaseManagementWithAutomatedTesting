@@ -131,9 +131,9 @@ public class ItemTests {
     ///// STORED FUNCTIONS AND PROCEDURES /////
     @ParameterizedTest
     @Order(6)
-    @DisplayName("should call newUser() procedure")
+    @DisplayName("should call newItem() procedure")
     @MethodSource("provideDataForNewItem")
-    public void shouldCallNewUser (int id, String name, String desc) {
+    public void shouldCallNewItem (int id, String name, String desc) {
         try {
             // newItem(String, String)
             DbConnector.getStatement().executeUpdate("CALL newItem ('" + name + "', '" + desc + "');");

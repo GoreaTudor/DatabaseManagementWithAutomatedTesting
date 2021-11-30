@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,7 +22,7 @@ public class InventoryTests {
         return instance;
     }
 
-    private static Stream<Arguments> newInvData () {
+    private static Stream <Arguments> newInvData () {
         return Stream.of(
                 Arguments.of("_dummy1_", 1, 2),
                 Arguments.of("_dummy1_", 2, 19),
@@ -34,6 +35,17 @@ public class InventoryTests {
                 Arguments.of("_dummy4_", 9, 2),
                 Arguments.of("_dummy4_", 10, 5),
                 Arguments.of("_dummy5_", 11, 17)
+        );
+    }
+    private static Stream <Arguments> defaultUserExpected () {
+        return Stream.of(
+                Arguments.of("admin1", "6"),
+                Arguments.of("admin2", "6"),
+                Arguments.of("user1", "3"),
+                Arguments.of("user2", "4"),
+                Arguments.of("user3", "2"),
+                Arguments.of("user4", "4"),
+                Arguments.of("user5", "4")
         );
     }
 
@@ -143,5 +155,71 @@ public class InventoryTests {
 
 
     ///// STORED FUNCTIONS AND PROCEDURES /////
-    ;
+    @ParameterizedTest
+    @Order(6)
+    @DisplayName("should call newUser() procedure")
+    @MethodSource("newInvData")
+    public void shouldCallNewInv (String username, int id, int quantity) {
+        try {
+            // newInv(String, int, int)
+            DbConnector.getStatement().executeUpdate("CALL newInv ('" + username + "', " + id + ", " + quantity + ");");
+
+            rs = DbConnector.getStatement().executeQuery(
+                    "SELECT * FROM inventory WHERE username = '" + username + "' AND item_id = " + id + ";"
+            );
+            Assertions.assertTrue(rs.next());
+
+            DbConnector.getStatement().executeUpdate(
+                    "DELETE FROM inventory WHERE username = '" + username + "' AND item_id = " + id + ";"
+            );
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
+
+    @ParameterizedTest
+    @Order(7)
+    @ValueSource(strings = {"admin1", "admin2", "user1", "user2", "user3", "user4", "user5"})
+    @DisplayName("should call showInfo() procedure (default test users)")
+    public void shouldCallShowInfo (String username) {
+        try {
+            rs = DbConnector.getStatement().executeQuery("CALL showInfo('" + username + "');");
+            Assertions.assertTrue(rs.next());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
+
+    @ParameterizedTest
+    @Order(8)
+    @ValueSource(strings = {"admin3", "user6", "abcd", "1234"})
+    @DisplayName("should fail to call showInfo() procedure (user doesn't exist)")
+    public void shouldFailToCallShowInfo (String username) {
+        try {
+            rs = DbConnector.getStatement().executeQuery("CALL showInfo('" + username + "');");
+            Assertions.assertFalse(rs.next());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
+
+    @ParameterizedTest
+    @Order(9)
+    @DisplayName("should count all item ids for a specific user")
+    @MethodSource("defaultUserExpected")
+    public void shouldCountAllDefaultUserItemIds (String username, String expected) {
+        try {
+            rs = DbConnector.getStatement().executeQuery("SELECT countItemIds('" + username + "');");
+            rs.next();
+            Assertions.assertEquals(expected, rs.getString(1));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
 }
