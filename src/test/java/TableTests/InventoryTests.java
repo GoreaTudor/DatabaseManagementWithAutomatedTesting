@@ -37,17 +37,6 @@ public class InventoryTests {
                 Arguments.of("_dummy5_", 11, 17)
         );
     }
-    private static Stream <Arguments> defaultUserExpected () {
-        return Stream.of(
-                Arguments.of("admin1", "6"),
-                Arguments.of("admin2", "6"),
-                Arguments.of("user1", "3"),
-                Arguments.of("user2", "4"),
-                Arguments.of("user3", "2"),
-                Arguments.of("user4", "4"),
-                Arguments.of("user5", "4")
-        );
-    }
 
 
     ///// TABLE OPS /////
@@ -184,8 +173,26 @@ public class InventoryTests {
     @DisplayName("should call showInfo() procedure (default test users)")
     public void shouldCallShowInfo (String username) {
         try {
+            // Take procedure result
             rs = DbConnector.getStatement().executeQuery("CALL showInfo('" + username + "');");
-            Assertions.assertTrue(rs.next());
+            if(!rs.next())
+                Assertions.fail();
+            String item_name = rs.getString(1);
+            String quantity = rs.getString(2);
+            String item_desc = rs.getString(3);
+
+            // Take query result
+            rs = DbConnector.getStatement().executeQuery(
+                    "SELECT item_name, quantity, item_description FROM inventory_view WHERE username = '" + username + "';"
+            );
+            if (!rs.next())
+                Assertions.fail();
+
+            Assertions.assertTrue(
+                    rs.getString(1).equals(item_name) &&
+                            rs.getString(2).equals(quantity) &&
+                            rs.getString(3).equals(item_desc)
+            );
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -195,12 +202,25 @@ public class InventoryTests {
 
     @ParameterizedTest
     @Order(8)
-    @ValueSource(strings = {"admin3", "user6", "abcd", "1234"})
-    @DisplayName("should fail to call showInfo() procedure (user doesn't exist)")
-    public void shouldFailToCallShowInfo (String username) {
+    @DisplayName("should count all item ids for a specific user")
+    @ValueSource(strings = {"admin1", "admin2", "user1", "user2", "user3", "user4", "user5"})
+    public void shouldCountAllDefaultUserItemIds (String username) {
         try {
-            rs = DbConnector.getStatement().executeQuery("CALL showInfo('" + username + "');");
-            Assertions.assertFalse(rs.next());
+            // Take function result
+            rs = DbConnector.getStatement().executeQuery("SELECT countItemIds('" + username + "');");
+            if(!rs.next())
+                Assertions.fail();
+            String actual = rs.getString(1);
+            System.out.print(actual + " ");
+
+            // Take query result that should do the same thing
+            rs = DbConnector.getStatement().executeQuery("SELECT COUNT(item_id) FROM inventory WHERE username = '" + username + "';");
+            if(!rs.next())
+                Assertions.fail();
+            String expected = rs.getString(1);
+            System.out.println(expected + "\n");
+
+            Assertions.assertEquals(expected, actual);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -210,13 +230,26 @@ public class InventoryTests {
 
     @ParameterizedTest
     @Order(9)
-    @DisplayName("should count all item ids for a specific user")
-    @MethodSource("defaultUserExpected")
-    public void shouldCountAllDefaultUserItemIds (String username, String expected) {
+    @DisplayName("should sum all item quantities for a specific user")
+    @ValueSource(strings = {"admin1", "admin2", "user1", "user2", "user3", "user4", "user5"})
+    public void shouldSumAllQuantities (String username) {
         try {
-            rs = DbConnector.getStatement().executeQuery("SELECT countItemIds('" + username + "');");
-            rs.next();
-            Assertions.assertEquals(expected, rs.getString(1));
+            // Take function result
+            rs = DbConnector.getStatement().executeQuery("SELECT countAllItems('" + username + "');");
+            if(!rs.next())
+                Assertions.fail();
+            String actual = rs.getString(1);
+            System.out.print(actual + " ");
+
+            // Take query result that should do the same thing
+            rs = DbConnector.getStatement().executeQuery("SELECT SUM(quantity) FROM inventory WHERE username = '" + username + "';");
+            if(!rs.next())
+                Assertions.fail();
+            String expected = rs.getString(1);
+            System.out.println(expected + "\n");
+
+            Assertions.assertEquals(expected, actual);
+
         } catch (SQLException e) {
             e.printStackTrace();
             Assertions.fail();
