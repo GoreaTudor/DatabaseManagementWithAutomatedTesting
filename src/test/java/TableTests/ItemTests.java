@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -122,4 +123,32 @@ public class ItemTests {
         }
     }
 
+
+    ///// VIEWS /////
+    ;
+
+
+    ///// STORED FUNCTIONS AND PROCEDURES /////
+    @ParameterizedTest
+    @Order(6)
+    @DisplayName("should call newUser() procedure")
+    @MethodSource("provideDataForNewItem")
+    public void shouldCallNewUser (int id, String name, String desc) {
+        try {
+            // newItem(String, String)
+            DbConnector.getStatement().executeUpdate("CALL newItem ('" + name + "', '" + desc + "');");
+
+            rs = DbConnector.getStatement().executeQuery(
+                    "SELECT * FROM item_table WHERE item_name = '" + name + "' AND item_description = '" + desc + "';"
+            );
+            Assertions.assertTrue(rs.next());
+
+            DbConnector.getStatement().executeUpdate(
+                    "DELETE FROM item_table WHERE item_name = '" + name + "' AND item_description = '" + desc + "';"
+            );
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
 }

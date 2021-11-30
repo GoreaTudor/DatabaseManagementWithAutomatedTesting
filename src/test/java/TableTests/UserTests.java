@@ -128,4 +128,30 @@ public class UserTests {
 
     }
 
+
+    ///// VIEWS /////
+    ;
+
+
+    ///// STORED FUNCTIONS AND PROCEDURES /////
+    @ParameterizedTest
+    @Order(6)
+    @DisplayName("should call newUser() procedure")
+    @MethodSource("provideDataForNewUser")
+    public void shouldCallNewUser (String username, char[] password, boolean isAdmin) {
+        int pwd = Arrays.hashCode(password);
+        try {
+            // newUser(String, int, tinyint <=> boolean)
+            DbConnector.getStatement().executeUpdate("CALL newUser ('" + username + "', " + pwd + ", " + isAdmin + ");");
+
+            rs = DbConnector.getStatement().executeQuery("SELECT * FROM user_table WHERE username = '" + username + "';");
+            Assertions.assertTrue(rs.next());
+
+            DbConnector.getStatement().executeUpdate("DELETE FROM user_table WHERE username = '" + username + "';");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
+
 }

@@ -136,4 +136,12 @@ public class InventoryTests {
             e.printStackTrace();
         }
     }
+
+
+    ///// VIEWS /////
+    ;
+
+
+    ///// STORED FUNCTIONS AND PROCEDURES /////
+    ;
 }
