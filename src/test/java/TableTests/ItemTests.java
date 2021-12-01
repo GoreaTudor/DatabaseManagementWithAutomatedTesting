@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -131,7 +130,7 @@ public class ItemTests {
     ///// STORED FUNCTIONS AND PROCEDURES /////
     @ParameterizedTest
     @Order(6)
-    @DisplayName("should call newItem() procedure")
+    @DisplayName("6: should call newItem() procedure")
     @MethodSource("provideDataForNewItem")
     public void shouldCallNewItem (int id, String name, String desc) {
         try {

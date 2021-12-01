@@ -16,8 +16,6 @@ import java.util.stream.Stream;
 public class InventoryTests {
     private static InventoryTests instance = new InventoryTests();
     private ResultSet rs;
-    private ResultSet rs1;
-    private ResultSet rs2;
 
     private InventoryTests () {}
     public static InventoryTests getInstance() {
@@ -142,13 +140,31 @@ public class InventoryTests {
 
 
     ///// VIEWS /////
-    ;
+    @Test
+    @Order(6)
+    @DisplayName("6: inv view (username, isAdmin, item_name, quantity, item_desc)")
+    public void shouldSelectInventoryView () {
+        try {
+            rs = DbConnector.getStatement().executeQuery("SELECT * FROM inventory_view;");
+            Assertions.assertTrue(
+                    rs.findColumn("username") == 1 &&
+                            rs.findColumn("isAdmin") == 2 &&
+                            rs.findColumn("item_name") == 3 &&
+                            rs.findColumn("quantity") == 4 &&
+                            rs.findColumn("item_description") == 5
+            );
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
 
 
     ///// STORED FUNCTIONS AND PROCEDURES /////
     @ParameterizedTest
-    @Order(6)
-    @DisplayName("should call newUser() procedure")
+    @Order(7)
+    @DisplayName("7: should call newUser() procedure")
     @MethodSource("newInvData")
     public void shouldCallNewInv (String username, int id, int quantity) {
         try {
@@ -170,9 +186,9 @@ public class InventoryTests {
     }
 
     @ParameterizedTest
-    @Order(7)
+    @Order(8)
     @ValueSource(strings = {"admin1", "admin2", "user1", "user2", "user3", "user4", "user5"})
-    @DisplayName("should call showInfo() procedure (default test users)")
+    @DisplayName("8: should call showInfo() procedure (default test users)")
     public void shouldCallShowInfo (String username) {
         try {
             rs = DbConnector.getStatement().executeQuery("CALL showInfo('" + username + "');");
@@ -191,8 +207,8 @@ public class InventoryTests {
     } // needs more work
 
     @ParameterizedTest
-    @Order(8)
-    @DisplayName("should count all item ids for a specific user")
+    @Order(9)
+    @DisplayName("9: should count all item ids for a specific user")
     @ValueSource(strings = {"admin1", "admin2", "user1", "user2", "user3", "user4", "user5"})
     public void shouldCountAllDefaultUserItemIds (String username) {
         try {
@@ -219,8 +235,8 @@ public class InventoryTests {
     }
 
     @ParameterizedTest
-    @Order(9)
-    @DisplayName("should sum all item quantities for a specific user")
+    @Order(10)
+    @DisplayName("10: should sum all item quantities for a specific user")
     @ValueSource(strings = {"admin1", "admin2", "user1", "user2", "user3", "user4", "user5"})
     public void shouldSumAllQuantities (String username) {
         try {

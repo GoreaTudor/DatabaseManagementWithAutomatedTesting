@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -18,8 +17,6 @@ public class UserTests {
 
     private static UserTests instance = new UserTests();
     private ResultSet rs;
-    private ResultSet rs1;
-    private ResultSet rs2;
 
     private UserTests () {}
     public static UserTests getInstance() {
@@ -135,7 +132,7 @@ public class UserTests {
     ///// VIEWS /////
     @Test
     @Order(6)
-    @DisplayName("users view (username, password) - users only")
+    @DisplayName("6: users view (username, password) - users only")
     public void shouldSelectUsersView () {
         try {
             rs = DbConnector.getStatement().executeQuery(
@@ -159,7 +156,7 @@ public class UserTests {
 
     @Test
     @Order(7)
-    @DisplayName("admins view (username, password) - admins only")
+    @DisplayName("7: admins view (username, password) - admins only")
     public void shouldSelectAdminsView () {
         try {
             rs = DbConnector.getStatement().executeQuery(
@@ -184,7 +181,7 @@ public class UserTests {
     ///// STORED FUNCTIONS AND PROCEDURES /////
     @ParameterizedTest
     @Order(8)
-    @DisplayName("should call newUser() procedure")
+    @DisplayName("8: should call newUser() procedure")
     @MethodSource("provideDataForNewUser")
     public void shouldCallNewUser (String username, char[] password, boolean isAdmin) {
         int pwd = Arrays.hashCode(password);
