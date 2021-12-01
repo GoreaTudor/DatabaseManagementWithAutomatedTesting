@@ -125,7 +125,7 @@ public class ItemTests {
 
 
     ///// VIEWS /////
-    ;
+    // No view found to test;
 
 
     ///// STORED FUNCTIONS AND PROCEDURES /////
