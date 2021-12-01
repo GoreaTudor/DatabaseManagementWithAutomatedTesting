@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -17,6 +18,8 @@ public class UserTests {
 
     private static UserTests instance = new UserTests();
     private ResultSet rs;
+    private ResultSet rs1;
+    private ResultSet rs2;
 
     private UserTests () {}
     public static UserTests getInstance() {
@@ -130,12 +133,57 @@ public class UserTests {
 
 
     ///// VIEWS /////
-    ;
+    @Test
+    @Order(6)
+    @DisplayName("users view (username, password) - users only")
+    public void shouldSelectUsersView () {
+        try {
+            rs = DbConnector.getStatement().executeQuery(
+                    "SELECT users.username, isAdmin FROM users INNER JOIN user_table ON user_table.username = users.username;"
+            );
+
+            while (rs.next()) {
+                if (!rs.getString("isAdmin").equals("0"))
+                    throw new SQLException("admin found inside users table");
+            }
+
+            rs = DbConnector.getStatement().executeQuery("SELECT * FROM users");
+            Assertions.assertTrue(rs.findColumn("username") == 1 && rs.findColumn("password") == 2);
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("admins view (username, password) - admins only")
+    public void shouldSelectAdminsView () {
+        try {
+            rs = DbConnector.getStatement().executeQuery(
+                    "SELECT admins.username, isAdmin FROM admins INNER JOIN user_table ON user_table.username = admins.username;"
+            );
+
+            while (rs.next()) {
+                if (!rs.getString("isAdmin").equals("1"))
+                    throw new SQLException("admin found inside users table");
+            }
+
+            rs = DbConnector.getStatement().executeQuery("SELECT * FROM admins");
+            Assertions.assertTrue(rs.findColumn("username") == 1 && rs.findColumn("password") == 2);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Assertions.fail();
+        }
+    }
 
 
     ///// STORED FUNCTIONS AND PROCEDURES /////
     @ParameterizedTest
-    @Order(6)
+    @Order(8)
     @DisplayName("should call newUser() procedure")
     @MethodSource("provideDataForNewUser")
     public void shouldCallNewUser (String username, char[] password, boolean isAdmin) {

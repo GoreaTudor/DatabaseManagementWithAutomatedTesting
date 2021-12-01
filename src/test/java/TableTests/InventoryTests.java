@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 public class InventoryTests {
     private static InventoryTests instance = new InventoryTests();
     private ResultSet rs;
+    private ResultSet rs1;
+    private ResultSet rs2;
 
     private InventoryTests () {}
     public static InventoryTests getInstance() {
@@ -173,32 +175,20 @@ public class InventoryTests {
     @DisplayName("should call showInfo() procedure (default test users)")
     public void shouldCallShowInfo (String username) {
         try {
-            // Take procedure result
             rs = DbConnector.getStatement().executeQuery("CALL showInfo('" + username + "');");
-            if(!rs.next())
-                Assertions.fail();
-            String item_name = rs.getString(1);
-            String quantity = rs.getString(2);
-            String item_desc = rs.getString(3);
-
-            // Take query result
-            rs = DbConnector.getStatement().executeQuery(
-                    "SELECT item_name, quantity, item_description FROM inventory_view WHERE username = '" + username + "';"
-            );
-            if (!rs.next())
-                Assertions.fail();
 
             Assertions.assertTrue(
-                    rs.getString(1).equals(item_name) &&
-                            rs.getString(2).equals(quantity) &&
-                            rs.getString(3).equals(item_desc)
+                rs.findColumn("item_name") == 1 &&
+                rs.findColumn("quantity") == 2 &&
+                rs.findColumn("item_description") == 3
             );
+
 
         } catch (SQLException e) {
             e.printStackTrace();
             Assertions.fail();
         }
-    }
+    } // needs more work
 
     @ParameterizedTest
     @Order(8)
