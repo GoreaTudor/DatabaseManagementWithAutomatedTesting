@@ -165,7 +165,7 @@ public class UserTests {
 
             while (rs.next()) {
                 if (!rs.getString("isAdmin").equals("1"))
-                    throw new SQLException("admin found inside users table");
+                    throw new SQLException("user found inside admins table");
             }
 
             rs = DbConnector.getStatement().executeQuery("SELECT * FROM admins");
