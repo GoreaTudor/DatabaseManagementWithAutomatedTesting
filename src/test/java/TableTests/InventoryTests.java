@@ -164,7 +164,7 @@ public class InventoryTests {
     ///// STORED FUNCTIONS AND PROCEDURES /////
     @ParameterizedTest
     @Order(7)
-    @DisplayName("7: should call newUser() procedure")
+    @DisplayName("7: should call newInv() procedure")
     @MethodSource("newInvData")
     public void shouldCallNewInv (String username, int id, int quantity) {
         try {
